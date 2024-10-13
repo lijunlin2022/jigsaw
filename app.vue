@@ -1,5 +1,9 @@
 <template>
-  <NuxtPage />
+  <UApp
+    :toaster="{position: 'top-center'}"
+  >
+    <NuxtPage />
+  </UApp>
 </template>
 <style>
 @import "tailwindcss";
