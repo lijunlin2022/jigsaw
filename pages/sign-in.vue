@@ -55,7 +55,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         登录
       </UButton>
 
-      <div className="w-full flex justify-between">
+      <div className="w-full flex justify-between mb-40 ">
         <ULink href="/sign-up" class="text-sm">没有账号，去注册</ULink>
         <ULink class="text-sm">忘记密码</ULink>
       </div>
