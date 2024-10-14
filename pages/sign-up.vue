@@ -33,8 +33,15 @@ const validate = (state: any): FormError[] => {
 }
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
+  await signUp()
   toast.add({ title: '注册成功', color: 'success' })
-  console.log(event.data)
+}
+
+async function signUp() {
+  await useFetch('/api/user/sign-up', {
+    method: 'post',
+    body: state
+  })
 }
 </script>
 

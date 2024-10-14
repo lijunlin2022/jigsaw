@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@nuxt/ui": "^3.0.0-alpha.6",
+    "jws": "^4.0.0",
+    "leancloud-storage": "^4.15.2",
     "nuxt": "^3.13.0",
     "vue": "latest",
     "vue-router": "latest",
