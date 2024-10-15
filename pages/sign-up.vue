@@ -71,7 +71,7 @@ async function signUp() {
       </UButton>
       <div className="w-full flex justify-between mb-40">
         <ULink href="/sign-in" class="text-sm">已有账号，去登录</ULink>
-        <ULink class="text-sm">忘记密码</ULink>
+        <ULink href="/forget-password" class="text-sm">忘记密码</ULink>
       </div>
     </UForm>
   </div>

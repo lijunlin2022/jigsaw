@@ -64,7 +64,29 @@ async function signInUser(body) {
   }
 }
 
+/**
+ * 重置密码
+ * @param {email} body 
+ * @returns 
+ */
+async function forgetPassword(body) {
+  const { email } = body
+  try {
+    await AV.User.requestPasswordReset(email)
+    return {
+      code: 0,
+      msg: '重置密码邮件发送成功'
+    }
+  } catch (error) {
+    return {
+      code: error.code,
+      msg: error.rawMessage
+    }
+  }
+}
+
 export {
   signUpUser,
-  signInUser
+  signInUser,
+  forgetPassword
 }

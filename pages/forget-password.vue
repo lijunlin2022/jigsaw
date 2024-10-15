@@ -3,15 +3,13 @@ import { z } from 'zod'
 import type { FormError, FormSubmitEvent } from '#ui/types'
 
 const schema = z.object({
-  email: z.string().email('邮箱不合法'),
-  password: z.string().min(8, '密码长度至少 8 位')
+  email: z.string().email('邮箱不合法')
 })
 
 type Schema = z.output<typeof schema>
 
 const state = reactive<Partial<Schema>>({
-  email: undefined,
-  password: undefined
+  email: undefined
 })
 
 const toast = useToast()
@@ -21,19 +19,16 @@ const validate = (state: any): FormError[] => {
   if (!state.email) {
     errors.push({ name: 'email', message: '邮箱不能为空' })
   }
-  if (!state.password) {
-    errors.push({ name: 'password', message: '密码不能为空' })
-  }
   return errors
 }
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  await signIn()
-  toast.add({ title: '登录成功', color: 'success' })
+  await forgetPassword()
+  toast.add({ title: '重置邮件发送成功', color: 'success' })
 }
 
-async function signIn() {
-  await useFetch('/api/user/sign-in', {
+async function forgetPassword() {
+  await useFetch('/api/user/forget-password', {
     method: 'post',
     body: state
   })
@@ -42,7 +37,7 @@ async function signIn() {
 
 <template>
   <div class="w-screen h-screen flex flex-col justify-center items-center">
-    <div class="text-xl font-bold text-center mb-8">登录</div>
+    <div class="text-xl font-bold text-center mb-8">重置密码</div>
     <UForm
       :validate="validate"
       :schema="schema"
@@ -54,17 +49,13 @@ async function signIn() {
         <UInput v-model="state.email" size="xl" />
       </UFormField>
 
-      <UFormField label="密码" name="password">
-        <UInput v-model="state.password" type="password" size="xl" />
-      </UFormField>
-
       <UButton type="submit" size="xl">
-        登录
+        重置
       </UButton>
 
       <div className="w-full flex justify-between mb-40 ">
         <ULink href="/sign-up" class="text-sm">没有账号，去注册</ULink>
-        <ULink href="/forget-password" class="text-sm">忘记密码</ULink>
+        <ULink href="/sign-in" class="text-sm">去登录</ULink>
       </div>
     </UForm>
   </div>
