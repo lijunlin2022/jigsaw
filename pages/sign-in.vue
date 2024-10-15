@@ -28,8 +28,15 @@ const validate = (state: any): FormError[] => {
 }
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
+  await signIn()
   toast.add({ title: '登录成功', color: 'success' })
-  console.log(event.data)
+}
+
+async function signIn() {
+  await useFetch('/api/user/sign-in', {
+    method: 'post',
+    body: state
+  })
 }
 </script>
 

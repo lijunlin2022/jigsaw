@@ -15,24 +15,22 @@ AV.init({
  * @returns 
  */
 async function signUpUser(body) {
-  let { email, password } = body
+  const { email, password } = body
   const user = new AV.User()
   user.setUsername(email)
   user.setPassword(password)
   user.setEmail(email)
 
   return user.signUp().then(async (user) => {
-    const userObjectId = user.getObjectId()
-    const userSign = { userId: userObjectId }
+    const userId = user.getObjectId()
+    const userSign = { userId }
     const token = await jws.sign(userSign, new Date().getTime() / 1000)
 
-    let returnUser = {
-      userId: userObjectId,
+    return {
+      userId,
       email,
       token
     }
-
-    return returnUser
   }, (error) => {
     return {
       code: error.code, msg: error.rawMessage
@@ -40,6 +38,33 @@ async function signUpUser(body) {
   })
 }
 
+/**
+ * 登录
+ * @param {email. password} body 
+ * @returns 
+ */
+async function signInUser(body) {
+  const { email, password } = body
+  try {
+    const user = await AV.User.loginWithEmail(email, password)
+    const userId = user.getObjectId()
+
+    const userSign = { userId }
+    const token = await jws.sign(userSign, new Date().getTime() / 1000)
+    return {
+      userId,
+      email,
+      token
+    }
+  } catch (error) {
+    return {
+      code: error.code,
+      msg: error.rawMessage
+    }
+  }
+}
+
 export {
-  signUpUser
+  signUpUser,
+  signInUser
 }
