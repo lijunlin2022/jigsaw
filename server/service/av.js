@@ -9,6 +9,11 @@ AV.init({
   serverURL: AV_CONFIG.serverURL
 })
 
+const vipLevel = {
+  v0: 'v0',
+  v1: 'v1'
+}
+
 /**
  * 注册
  * @param {email, password} body
@@ -23,17 +28,25 @@ async function signUpUser(body) {
 
   return user.signUp().then(async (user) => {
     const userId = user.getObjectId()
-    const userSign = { userId }
-    const token = await jws.sign(userSign, new Date().getTime() / 1000)
 
-    return {
-      userId,
-      email,
-      token
-    }
-  }, (error) => {
-    return {
-      code: error.code, msg: error.rawMessage
+    const vip = new AV.Object.extend('vip')
+    vip.set('email', email)
+    vip.set('userObjectId', userId)
+    vip.set('userObject', user)
+    vip.set('level', vipLevel.v0)
+
+    return vip.save().then(async () => {
+      const userSign = { userId }
+      const token = await jws.sign(userSign, new Date().getTime() / 1000)
+      return {
+        userId,
+        email,
+        token
+      }
+    }), (error) => {
+      return {
+        code: error.code, msg: error.rawMessage
+      }
     }
   })
 }
