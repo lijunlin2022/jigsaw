@@ -9,9 +9,43 @@ AV.init({
   serverURL: AV_CONFIG.serverURL
 })
 
-const vipLevel = {
-  v0: 'v0',
-  v1: 'v1'
+AV.Cloud.useMasterKey();
+
+const userMember = {
+  v0: 'xjksda',
+  v1: 'sadskx'
+}
+
+/**
+ * 注册会员
+ * @param {user, email} params
+ * @returns 
+ */
+async function signUpMembership (params) {
+  const { user, email } = params
+  const userId = user.getObjectId()
+
+  const membership = AV.Object.extend('Membership')
+  const membershipObj = new membership()
+  membershipObj.set('email', email)
+  membershipObj.set('userObjectId', userId)
+  membershipObj.set('userObject', user)
+  membershipObj.set('member', userMember.v0)
+  
+  return membershipObj.save().then(async () => {
+    const userSign = { userId }
+    const token = await jws.sign(userSign, new Date().getTime() / 1000)
+    const data = {
+      userId,
+      email,
+      token
+    }
+    return {
+      code: 0,
+      data,
+      msg: '成功'
+    }
+  })
 }
 
 /**
@@ -26,29 +60,17 @@ async function signUpUser(body) {
   user.setPassword(password)
   user.setEmail(email)
 
-  return user.signUp().then(async (user) => {
-    const userId = user.getObjectId()
-
-    const vip = new AV.Object.extend('vip')
-    vip.set('email', email)
-    vip.set('userObjectId', userId)
-    vip.set('userObject', user)
-    vip.set('level', vipLevel.v0)
-
-    return vip.save().then(async () => {
-      const userSign = { userId }
-      const token = await jws.sign(userSign, new Date().getTime() / 1000)
+  return user.signUp().then(
+    async (user) => {
+      return await signUpMembership({ user, email })
+    },
+    (error) => {
       return {
-        userId,
-        email,
-        token
-      }
-    }), (error) => {
-      return {
-        code: error.code, msg: error.rawMessage
+        code: error.code,
+        msg: error.rawMessage
       }
     }
-  })
+  )
 }
 
 /**
