@@ -120,8 +120,69 @@ async function forgetPassword(body) {
   }
 }
 
+/**
+ * 查询会员信息 
+ */
+async function getMembership(userId) {
+  const membership = new AV.Query('Membership')
+  membership.equalTo('userObjectId', userId)
+  return membership.first().then(function (account) {
+    let res = {}
+    if (account) {
+      res = {
+        userId: account.get('userObjectId'),
+        expirationAt: new Date(account.get('expirationAt')).getTime(),
+        member: account.get('member'),
+        level: account.get('level')
+      }
+    }
+    return { data: res }
+  })
+}
+
+async function syncUserInfo(headers) {
+  const token = headers['x-ut']
+  const userId = headers['x-ui']
+
+  // 没有 token
+  if (!token) {
+    return {
+      code: -1,
+      msg: '未登录'
+    }
+  }
+
+  const res = await jws.verify(token)
+  const payload = res.payload
+  const date = new Date().getTime()
+  const expireTime = payload.expirationAt
+
+  if (!expireTime) {
+    return {
+      code: -1,
+      msg: '未登录'
+    }
+  }
+
+  // 有 token，但是 token 过期了
+  if (expireTime < date) {
+    return {
+      code: -1,
+      msg: '登录过期了，请重新登录'
+    }
+  }
+
+  // 有 token，且 token 没过期，返回会员过期时间
+  const { data } = await getMembership(userId)
+  return {
+    code: 0,
+    data
+  }
+}
+
 export {
   signUpUser,
   signInUser,
-  forgetPassword
+  forgetPassword,
+  syncUserInfo
 }
